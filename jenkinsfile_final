@@ -1,69 +1,76 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven'
+    }
 
-       tools {
-        maven 'maven3'
+    environment {
+        SONAR_TOKEN = credentials('sonar')
     }
 
     stages {
-      stage('checkout') {
+
+        stage('Checkout') {
             steps {
-                echo 'Cloning GIT HUB Repo '
-				git branch: 'main', url: 'https://github.com/devopstraininghub/mindcircuit13.git'
-            }  
-        }
-		
-		
-		
-	 stage('sonar') {
-            steps {
-                echo 'scanning project'
-                sh 'ls -ltr'
-                
-                sh ''' mvn sonar:sonar \\
-                      -Dsonar.host.url=http://44.210.116.12:9000 \\
-                      -Dsonar.login=squ_a46b6947d43a812180415ff94219120d2ddebcea'''
+
+                echo 'Cloning GitHub Repo'
+
+                git branch: 'main',
+                url: 'https://github.com/sumapalla/CI-CD.git'
             }
-    	}
-		
-		
-		
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+
+                echo 'Scanning Project'
+
+                sh 'ls -ltr'
+
+                sh """
+                    mvn sonar:sonar \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.token=$SONAR_TOKEN
+                """
+            }
+        }
+
         stage('Build Artifact') {
             steps {
-                echo 'Build Artifact'
-				sh 'mvn clean package'
+
+                echo 'Building Artifact'
+
+                sh 'mvn clean package'
             }
         }
-		
-		
-		
-        stage('Docker Image') {
+
+        stage('Docker Image Build') {
             steps {
-                echo 'Docker Image building'
-				sh 'docker build -t devopshubg333/batch13:${BUILD_NUMBER} .'
+
+                echo 'Building Docker Image'
+
+                sh 'docker build -t katakamsuma/myapp:${BUILD_NUMBER} .'
             }
         }
-		
-		
-       stage('Push to Dockerhub') {
+
+        stage('Push to DockerHub') {
             steps {
-			 script {
-			withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) 
-			{
-            sh 'docker login -u devopshubg333 -p ${dockerhub}'
-			
-			 }
-			   sh 'docker push devopshubg333/batch13:${BUILD_NUMBER}'
-			   
-           
-				}
-				
+
+                echo 'Pushing Docker Image'
+
+                script {
+
+                    withCredentials([string(credentialsId: 'docker', variable: 'dockerhub')]) {
+
+                        sh 'docker login -u katakamsuma -p ${dockerhub}'
+
+                        sh 'docker push katakamsuma/myapp:${BUILD_NUMBER}'
+                    }
+                }
             }
         }
-		
-		
-    stage('Update Deployment File') {
+        stage('Update Deployment File') {
 		
 		 environment {
             GIT_REPO_NAME = "mindcircuit13"
@@ -78,7 +85,7 @@ pipeline {
                     git config user.email "gorekarmadhu@gmail.com"
                     git config user.name "Madhu"
                     BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/batch13:.*/batch13:${BUILD_NUMBER}/g" deploymentfiles/deployment.yml
+                    sed -i "s/myapp:.*/myapp:${BUILD_NUMBER}/g" deploymentfiles/deployment.yml
                     git add .
                     
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
@@ -90,9 +97,5 @@ pipeline {
 				
             }
         }
-		
-		
-			
     }
-
 }
