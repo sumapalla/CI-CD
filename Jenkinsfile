@@ -70,32 +70,32 @@ pipeline {
                 }
             }
         }
-        stage('Update Deployment File') {
-		
-		 environment {
-            GIT_REPO_NAME = "CI-CD"
-            GIT_USER_NAME = "sumapalla"
-        }
-		
-            steps {
-                echo 'Update Deployment File'
-				withCredentials([string(credentialsId: 'githubtoken', variable: 'githubtoken')]) 
-				{
-                  sh '''
-                    git config user.email "sukuma.palla@gmail.com"
-                    git config user.name "Sukuma"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/myapp:.*/myapp:${BUILD_NUMBER}/g" deploymentfiles/deployment.yml
-                    git add .
-                    
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+stage('Update Deployment File') {
 
-                    git push https://${githubtoken}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
-				  
-                 }
-				
-            }
+    environment {
+        GIT_REPO_NAME = "CI-CD"
+        GIT_USER_NAME = "sumapalla"
+    }
+
+    steps {
+        echo 'Update Deployment File'
+
+        withCredentials([string(credentialsId: 'githubtoken', variable: 'GITHUB_TOKEN')]) {
+
+            sh '''
+                git config --global user.email "sukuma.palla@gmail.com"
+                git config --global user.name "Sukuma"
+
+                sed -i "s/myapp:.*/myapp:${BUILD_NUMBER}/g" deploymentfiles/deployment.yml
+
+                git add deploymentfiles/deployment.yml
+
+                git commit -m "Update deployment image to version ${BUILD_NUMBER}" 
+
+                git push https://${GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+            '''
         }
+    }
+}
     }
 }
