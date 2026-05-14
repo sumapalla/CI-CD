@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: mc-app
-        image:  katakamsuma/myapp:45
+        image:  katakamsuma/myapp:46
         ports:
         - containerPort: 8080
 
