@@ -82,8 +82,8 @@ pipeline {
 				withCredentials([string(credentialsId: 'githubtoken', variable: 'githubtoken')]) 
 				{
                   sh '''
-                    git config user.email "gorekarmadhu@gmail.com"
-                    git config user.name "Madhu"
+                    git config user.email "sukuma.palla@gmail.com"
+                    git config user.name "Sukuma"
                     BUILD_NUMBER=${BUILD_NUMBER}
                     sed -i "s/myapp:.*/myapp:${BUILD_NUMBER}/g" deploymentfiles/deployment.yml
                     git add .
