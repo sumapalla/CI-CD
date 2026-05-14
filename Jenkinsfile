@@ -88,7 +88,7 @@ stage('Update Deployment File') {
 
                 sed -i "s/myapp:.*/myapp:${BUILD_NUMBER}/g" deploymentfiles/deployment.yml
 
-                git add deploymentfiles/deployment.yml
+                git add .
 
                 git commit -m "Update deployment image to version ${BUILD_NUMBER}" 
 
