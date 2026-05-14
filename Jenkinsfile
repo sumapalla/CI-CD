@@ -73,8 +73,8 @@ pipeline {
         stage('Update Deployment File') {
 		
 		 environment {
-            GIT_REPO_NAME = "mindcircuit13"
-            GIT_USER_NAME = "devopstraininghub"
+            GIT_REPO_NAME = "CI-CD"
+            GIT_USER_NAME = "sumapalla"
         }
 		
             steps {
